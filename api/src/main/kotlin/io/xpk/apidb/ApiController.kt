@@ -11,13 +11,18 @@ import org.springframework.web.context.request.ServletWebRequest
 import org.springframework.web.servlet.HandlerMapping
 
 @RestController
-class ApiController(val dataSourceLookup: MapDataSourceLookup) {
+class ApiController(
+  val dataSourceLookup: MapDataSourceLookup,
+  val sqlService: SqlService
+) {
 
   @GetMapping
   fun api(webRequest: ServletWebRequest): Any {
     val path = webRequest.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, RequestAttributes.SCOPE_REQUEST) as String
+    val method = webRequest.httpMethod!!
+    val sql = sqlService.getSqlForPath(method, path)
     val jdbcTemplate = JdbcTemplate(dataSourceLookup.getDataSource("default"))
-    return jdbcTemplate.query("SELECT * FROM public.user", ColumnMapRowMapper())
+    return jdbcTemplate.query(sql, ColumnMapRowMapper())
   }
 
   @PostMapping("/connectDb")
