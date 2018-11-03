@@ -41,6 +41,7 @@ repositories {
 
 dependencies {
     compile("org.springframework.boot:spring-boot-starter-web")
+    compile("org.springframework.boot:spring-boot-starter-jdbc")
     compile("org.apache.commons:commons-lang3")
 
     runtime("org.postgresql:postgresql")
