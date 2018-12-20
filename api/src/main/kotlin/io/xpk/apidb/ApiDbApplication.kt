@@ -4,9 +4,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
 import org.springframework.jdbc.datasource.lookup.MapDataSourceLookup
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
 @SpringBootApplication
-class ApidbApplication {
+class ApiDbApplication : WebMvcConfigurer {
   @Bean
   fun dataSourceLookup(): MapDataSourceLookup {
     return MapDataSourceLookup()
@@ -14,6 +15,6 @@ class ApidbApplication {
 }
 
 fun main(args: Array<String>) {
-  runApplication<ApidbApplication>(*args)
+  runApplication<ApiDbApplication>(*args)
 }
 
