@@ -22,10 +22,15 @@ class ApiService(val dataSourceLookup: MapDataSourceLookup) {
     apiDefinitionDbName: String
   ): Any {
     val apiText = getApiSql(apiDefinitionDbName, method, url.path)
+    val db = jdbc(tenantDbName)
+    val namedParameters = MapSqlParameterSource(args)
     return when (method) {
-      HttpMethod.GET -> jdbc(tenantDbName).query(apiText, MapSqlParameterSource(args), ColumnMapRowMapper())
-      HttpMethod.POST -> jdbc(tenantDbName).update(apiText, MapSqlParameterSource(args), GeneratedKeyHolder())
-      HttpMethod.PUT -> jdbc(tenantDbName).update(apiText, MapSqlParameterSource(args))
+      HttpMethod.GET -> db.query(apiText, namedParameters, ColumnMapRowMapper())
+      HttpMethod.POST -> {
+        val generatedKeyHolder = GeneratedKeyHolder()
+        db.update(apiText, namedParameters, generatedKeyHolder)
+        return generatedKeyHolder.keyList
+      }
       else -> throw UserErrorException("I don't know how to handle a $method")
     }
   }
