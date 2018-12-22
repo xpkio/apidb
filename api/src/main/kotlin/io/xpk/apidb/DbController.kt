@@ -35,14 +35,15 @@ class DbController(
   fun initDb(@PathVariable apiDbName: String) {
     val jdbcTemplate = JdbcTemplate(dataSourceLookup.getDataSource(apiDbName))
     jdbcTemplate.update(
-      "CREATE TABLE IF NOT EXISTS api_sql\n" +
+      "create table if not exists api_sql\n" +
           "(\n" +
-          "    id serial PRIMARY KEY,\n" +
-          "    api text,\n" +
-          "    sql text\n" +
-          ")"
+          "  id  serial not null\n" +
+          "    constraint api_sql_pkey\n" +
+          "    primary key,\n" +
+          "  api text   not null,\n" +
+          "  sql text   not null,\n" +
+          "  vt  timestamp with time zone default now() not null\n" +
+          ");"
     )
-    jdbcTemplate.update("CREATE UNIQUE INDEX IF NOT EXISTS api_sql_id_uindex ON apidb.api_sql (id)")
-    jdbcTemplate.update("CREATE UNIQUE INDEX IF NOT EXISTS api_sql_api_uindex ON apidb.api_sql (api)")
   }
 }

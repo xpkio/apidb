@@ -10,6 +10,7 @@ import org.springframework.jdbc.datasource.lookup.MapDataSourceLookup
 import org.springframework.jdbc.support.GeneratedKeyHolder
 import org.springframework.stereotype.Service
 import java.net.URL
+import java.sql.Timestamp
 
 @Service
 class ApiService(val dataSourceLookup: MapDataSourceLookup) {
@@ -19,9 +20,10 @@ class ApiService(val dataSourceLookup: MapDataSourceLookup) {
     url: URL,
     args: Map<String, Any>,
     tenantDbName: String,
-    apiDefinitionDbName: String
+    apiDefinitionDbName: String,
+    timestamp: Long
   ): Any {
-    val apiText = getApiSql(apiDefinitionDbName, method, url.path)
+    val apiText = getApiSql(apiDefinitionDbName, method, url.path, timestamp)
     val db = jdbc(tenantDbName)
     val namedParameters = MapSqlParameterSource(args)
     return when (method) {
@@ -35,18 +37,22 @@ class ApiService(val dataSourceLookup: MapDataSourceLookup) {
     }
   }
 
-  private fun getApiSql(apiDefinitionDbName: String, method: HttpMethod, api: String): String {
+  private fun getApiSql(
+    apiDefinitionDbName: String,
+    method: HttpMethod,
+    path: String,
+    timestamp: Long
+  ): String {
+    val api = method.name + " " + path
     val apiText =
       jdbc(apiDefinitionDbName).jdbcTemplate.query(
-        "SELECT sql FROM api_sql WHERE api = ?",
+        "SELECT sql FROM api_sql WHERE api = ? AND vt < ? ORDER BY vt DESC LIMIT 1",
         SingleColumnRowMapper<String>(),
-        method.name + " " + api
+        api,
+        Timestamp(timestamp)
       )
     if (apiText.isEmpty()) {
       throw NotFoundException("That api, '$api', does not exist in db '$apiDefinitionDbName'.")
-    }
-    if (apiText.size > 1) {
-      throw NotFoundException("That api, '$api', has too many definitions (${apiText.size}) in db '$apiDefinitionDbName'.")
     }
     return apiText[0]
   }
