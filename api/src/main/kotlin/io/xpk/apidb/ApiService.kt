@@ -49,7 +49,7 @@ class ApiService(val dataSourceLookup: MapDataSourceLookup) {
         "SELECT sql FROM api_sql WHERE api = ? AND vt < ? ORDER BY vt DESC LIMIT 1",
         SingleColumnRowMapper<String>(),
         api,
-        Timestamp(timestamp)
+        timestamp
       )
     if (apiText.isEmpty()) {
       throw NotFoundException("That api, '$api', does not exist in db '$apiDefinitionDbName'.")

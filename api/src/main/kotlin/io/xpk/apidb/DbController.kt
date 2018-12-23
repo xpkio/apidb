@@ -35,15 +35,15 @@ class DbController(
   fun initDb(@PathVariable apiDbName: String) {
     val jdbcTemplate = JdbcTemplate(dataSourceLookup.getDataSource(apiDbName))
     jdbcTemplate.update(
-      "create table if not exists api_sql\n" +
-          "(\n" +
-          "  id  serial not null\n" +
-          "    constraint api_sql_pkey\n" +
-          "    primary key,\n" +
-          "  api text   not null,\n" +
-          "  sql text   not null,\n" +
-          "  vt  timestamp with time zone default now() not null\n" +
-          ");"
+      """
+      create table if not exists api_sql
+      (
+        id serial not null constraint api_sql_pkey primary key,
+        api text not null,
+        sql text not null,
+        vt bigint not null default (extract(epoch from now()) * (1000)::bigint)
+      );
+      """.trimIndent()
     )
   }
 }
