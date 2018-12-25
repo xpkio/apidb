@@ -1,0 +1,14 @@
+spring:
+  datasource:
+    initialization-mode: always
+    url: jdbc:postgresql://localhost:5432/apidb?currentSchema=devdb
+    username: postgres
+    password: postgres
+
+apidb:
+  primary-datasource-name: devdb
+  datasources:
+    - name: steve
+      url: jdbc:postgresql://localhost:5432/apidb?currentSchema=steve
+      username: postgres
+      password: postgres

@@ -10,7 +10,6 @@ import org.springframework.jdbc.datasource.lookup.MapDataSourceLookup
 import org.springframework.jdbc.support.GeneratedKeyHolder
 import org.springframework.stereotype.Service
 import java.net.URL
-import java.sql.Timestamp
 
 @Service
 class ApiService(val dataSourceLookup: MapDataSourceLookup) {
@@ -43,16 +42,16 @@ class ApiService(val dataSourceLookup: MapDataSourceLookup) {
     path: String,
     timestamp: Long
   ): String {
-    val api = method.name + " " + path
     val apiText =
       jdbc(apiDefinitionDbName).jdbcTemplate.query(
-        "SELECT sql FROM api_sql WHERE api = ? AND vt < ? ORDER BY vt DESC LIMIT 1",
+        "SELECT sql_text FROM api WHERE method = ? AND path = ? AND version <= ? ORDER BY version DESC LIMIT 1",
         SingleColumnRowMapper<String>(),
-        api,
+        method.name,
+        path,
         timestamp
       )
     if (apiText.isEmpty()) {
-      throw NotFoundException("That api, '$api', does not exist in db '$apiDefinitionDbName'.")
+      throw NotFoundException("That api, '${method.name} $path', does not exist in db '$apiDefinitionDbName'.")
     }
     return apiText[0]
   }
