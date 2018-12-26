@@ -51,7 +51,7 @@ function TableViewer({ data, select, selectedItem }) {
   //@TODO cant show a table without any meta data
   if (data.length === 0) return <div>No data</div>;
 
-  // if (selectedItem) data = data.filter(item => item.id === selectedItem.id);
+  if (selectedItem) data = data.filter(item => item.id === selectedItem.id);
 
   const headers = Object.keys(data[0]);
 
