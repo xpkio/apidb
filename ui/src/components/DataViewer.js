@@ -2,6 +2,8 @@ import React, { useState, Suspense } from "react";
 import styled from "styled-components";
 import { humanize, underscore } from "inflection";
 import { apidb, api } from "../api";
+import Button from "./Button";
+import Loader from "./Loader";
 
 function DataViewer({ title, fetcher = () => apidb.get(), close }) {
   const [selectedItem, select] = useState(null);
@@ -30,7 +32,7 @@ function DataViewer({ title, fetcher = () => apidb.get(), close }) {
         {viewer}
       </Tile>
       {Boolean(selectedItem) && (
-        <Suspense fallback={"loader"}>
+        <Suspense fallback={<Loader />}>
           <DataViewer
             fetcher={() =>
               // @TODO needs another way know which schema is the one to pick from
@@ -75,7 +77,7 @@ function TableViewer({ data, select, selectedItem }) {
               <td key={index}>{column}</td>
             ))}
             <td>
-              <button onClick={() => select(row)}>View</button>
+              <Button onClick={() => select(row)}>View</Button>
             </td>
           </tr>
         ))}
@@ -108,18 +110,20 @@ const Table = styled.table`
 
 const H2 = styled.h2`
   font-size: 24px;
-  margin-bottom: 0.5em;
+  margin-bottom: 1em;
 `;
 
 const Tile = styled.div`
   padding: 20px;
-  border: 1px solid #dadee4;
-  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f8f8f8;
+  box-shadow: 0px 8px 32px rgba(0, 0, 0, 0.05);
   position: relative;
   z-index: 1;
   margin-bottom: 40px;
+  background: white;
+  border-radius: 7px;
 `;
 
-const CloseButton = styled.button`
+const CloseButton = styled(Button)`
   float: right;
 `;
