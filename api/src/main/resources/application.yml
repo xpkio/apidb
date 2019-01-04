@@ -1,14 +1,19 @@
-spring:
-  datasource:
-    initialization-mode: always
-    url: jdbc:postgresql://localhost:5432/apidb?currentSchema=devdb
-    username: postgres
-    password: postgres
+spring.autoconfigure.exclude: org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
 
 apidb:
-  primary-datasource-name: devdb
   datasources:
-    - name: steve
-      url: jdbc:postgresql://localhost:5432/apidb?currentSchema=steve
+    - name: cms
+      url: jdbc:postgresql://localhost:5432/apidb?currentSchema=cms
       username: postgres
       password: postgres
+      schema: classpath:schema.sql
+    - name: solutionscorp
+      url: jdbc:postgresql://localhost:5432/apidb?currentSchema=solutionscorp
+      username: postgres
+      password: postgres
+    - name: apidb
+      url: jdbc:postgresql://localhost:5432/apidb?currentSchema=apidb
+      username: postgres
+      password: postgres
+      schema: classpath:schema.sql
+      data: classpath:data.sql

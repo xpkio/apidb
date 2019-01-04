@@ -17,10 +17,6 @@ VALUES (:api_method, :api_path, :api_version, :method, :link, :name, :type, :ico
 WHERE NOT EXISTS (SELECT * FROM api WHERE method = 'POST' AND path = '/newLink');
 
 INSERT INTO link (api_method, api_path, method, link, name, type, icon)
-SELECT 'GET', '/apis', '$method', '$path', 'Execute', 'inline', 'play'
-WHERE NOT EXISTS (SELECT * FROM link WHERE method = '$method' AND link = '$path' AND name = 'Execute');
-
-INSERT INTO link (api_method, api_path, method, link, name, type, icon)
 SELECT 'GET', '/apis', 'POST', '/newApi?method=$prompt&path=$prompt&title=$prompt&description=$prompt&sqlText=$prompt', 'New Api', 'headline', 'plus'
 WHERE NOT EXISTS (SELECT * FROM link WHERE method = 'POST' AND link = '/newApi?method=$prompt&path=$prompt&title=$prompt&description=$prompt&sqlText=$prompt' AND name = 'New Api');
 
