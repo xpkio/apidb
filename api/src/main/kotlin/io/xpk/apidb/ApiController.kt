@@ -16,7 +16,7 @@ class ApiController(val apiService: ApiService) {
     httpEntity: HttpEntity<Map<String, Any>>,
     request: HttpServletRequest,
     response: HttpServletResponse,
-    params: Map<String, String>,
+    @RequestParam params: Map<String, Any>,
     @RequestHeader("tenant-db-name", required = false) tenantDbNameHeader: String?,
     @RequestHeader("api-definition-db-name", required = false) apiDefinitionDbNameHeader: String?,
     @RequestHeader("api-timestamp", required = false) apiTimestamp: Long?

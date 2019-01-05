@@ -17,3 +17,9 @@ apidb:
       password: postgres
       schema: classpath:schema.sql
       data: classpath:data.sql
+    - name: public
+      url: jdbc:postgresql://localhost:5432/apidb?currentSchema=public
+      username: postgres
+      password: postgres
+      schema: classpath:schema.sql
+      data: classpath:data.sql
