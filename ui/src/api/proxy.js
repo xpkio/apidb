@@ -14,7 +14,10 @@ export const createProxy = (object, callback, path = [""]) => {
 
     if (!method) throw new Error(`No method selected for ${path.join("/")}`);
 
-    const urlBase = path.slice(0, -1).join("/");
+    const urlBase = path
+      .slice(0, -1)
+      .filter(Boolean)
+      .join("/");
 
     return callback(method, urlBase, ...args);
   };

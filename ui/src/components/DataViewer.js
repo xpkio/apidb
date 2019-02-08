@@ -5,15 +5,13 @@ import { apidb, api } from "../api";
 import Button from "./Button";
 import Loader from "./Loader";
 
-function DataViewer({ title, fetcher = () => apidb.get(), close }) {
-  const [selectedItem, select] = useState(null);
+function DataViewer({ title, fetcher = () => apidb.apis.get(), close }) {
+  const [selection, select] = useState(null);
   const data = fetcher();
 
   const getViewer = () => {
-    if (Array.isArray(data)) {
-      return (
-        <TableViewer data={data} select={select} selectedItem={selectedItem} />
-      );
+    if (Array.isArray(data.results)) {
+      return <TableViewer data={data} select={select} selection={selection} />;
     }
 
     // @TODO add other viewers like numbers and single row
@@ -21,6 +19,8 @@ function DataViewer({ title, fetcher = () => apidb.get(), close }) {
   };
 
   const viewer = getViewer();
+
+  console.log(selection);
 
   return (
     <>
@@ -31,15 +31,18 @@ function DataViewer({ title, fetcher = () => apidb.get(), close }) {
         </div>
         {viewer}
       </Tile>
-      {Boolean(selectedItem) && (
+      {Boolean(selection) && (
         <Suspense fallback={<Loader />}>
           <DataViewer
             fetcher={() =>
               // @TODO needs another way know which schema is the one to pick from
-              (selectedItem.path !== "/" ? api : apidb)[selectedItem.path].get()
+              // @TODO ^^^^^ This is getting more important
+              (selection.link.link.includes("/steve") ? api : apidb)[
+                selection.link.link
+              ].get()
             }
             close={() => select(null)}
-            title={selectedItem.title}
+            title={selection.item.title}
           />
         </Suspense>
       )}
@@ -47,13 +50,37 @@ function DataViewer({ title, fetcher = () => apidb.get(), close }) {
   );
 }
 
-function TableViewer({ data, select, selectedItem }) {
+function TableViewer({ data, select, selection }) {
+  // Build links for each row
+  const rows = data.results.map(row => {
+    return {
+      ...row,
+      _links: data.links
+        .filter(link => link.type === "inline")
+        .map(link => {
+          return Object.entries(link)
+            .map(([key, value]) => [
+              key,
+              typeof value !== "string"
+                ? value
+                : value.replace(
+                    /\$([a-zA-Z$_][a-zA-Z0-9$_]+)/g,
+                    (_, replaceKey) => {
+                      return row[replaceKey] || null;
+                    }
+                  )
+            ])
+            .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
+        })
+    };
+  });
+
   //@TODO cant show a table without any meta data
-  if (data.length === 0) return <div>No data</div>;
+  if (rows.length === 0) return <div>No data</div>;
 
-  if (selectedItem) data = data.filter(item => item.id === selectedItem.id);
+  if (selection) data = rows.filter(item => item.id === selection.item.id);
 
-  const headers = Object.keys(data[0]);
+  const headers = Object.keys(rows[0]).filter(x => !x.startsWith("_"));
 
   return (
     <Table>
@@ -66,18 +93,17 @@ function TableViewer({ data, select, selectedItem }) {
         </tr>
       </thead>
       <tbody>
-        {data.map((row, index) => (
-          <tr
-            key={index}
-            // tabIndex={0}
-            // role="button"
-            // onClick={() => select(row)}
-          >
+        {rows.map(({ _links: links, ...row }, index) => (
+          <tr key={index}>
             {Object.values(row).map((column, index) => (
               <td key={index}>{column}</td>
             ))}
             <td>
-              <Button onClick={() => select(row)}>View</Button>
+              {links.map((link, index) => (
+                <Button key={index} onClick={() => select({ item: row, link })}>
+                  {link.name}
+                </Button>
+              ))}
             </td>
           </tr>
         ))}
